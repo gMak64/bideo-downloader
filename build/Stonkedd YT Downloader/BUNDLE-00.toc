@@ -1,0 +1,3 @@
+([('Stonkedd YT Downloader',
+   '/Users/grantmak/PycharmProjects/YTDownloader/dist/Stonkedd YT Downloader',
+   'EXECUTABLE')],)
