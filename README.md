@@ -1,5 +1,14 @@
 # Stonkedd's Video Downloader
-Video downloader for all my editing goats. Currently supports:
+Video downloader for all my editing goats. Current features:
+- Download in .mp4 or .mp3
+- Queue multiple videos for download
+- Progress bars on downloads
+- Specify a download location, and an option to open that location later
+- Specify names of videos
+- Download a playlist by supplying the playlist link (not an invididual video)
+- Verification with browser to download private / restricted videos
+
+Currently supports:
 - YouTube
 
 To run it, just download the dist file for your OS and run `main`. If you want to build it yourself for some reason, you can follow the directions below.
