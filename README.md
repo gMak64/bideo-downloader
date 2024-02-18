@@ -14,3 +14,9 @@ or ask me
 
 ## YouTube
 Provide a URL, a save location, and whether you want the .mp4 or the .mp3. The file will have the same name as the video.
+
+## MP3 Troubleshooting
+If MP3 files fails to convert properly, you probably need this installed: https://ffmpeg.org/download.html
+
+To use this, download from packages & executable files, and move that to your home directory.
+![](./ffmpeg.png)

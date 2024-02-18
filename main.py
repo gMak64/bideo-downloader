@@ -37,7 +37,8 @@ def get_res_path(relative_path: str) -> str:
         raise FileNotFoundError(f'{os.path.join(base_path, relative_path)} is not found!')
 
 
-ydl_base_opts: dict[str, Any] = {'outtmpl': 'TITLE-%(id)s.%(ext)s',
+ydl_base_opts: dict[str, Any] = {'outtmpl': '%(title)s.%(ext)s',
+                                 'noplaylist': True,
                                  'extractor_args': {'youtube': {'skip': ['dash', 'hls']}},
                                  }
 percent_str_regex = re.compile(r'\d{1,3}\.\d{1,2}%')
@@ -162,25 +163,25 @@ class DownloadTask(Frame):
         parsed_info = parse_info(info)
         self.extract_info_succeed = True
         self.title = name_input.get() if name_input.get() != '' else sanitize(parsed_info['title'])
-        self.duration = parsed_info['duration']
-        self.size = parsed_info['size']
-        self.formats = parsed_info['formats']
-        if isinstance(self.ydl_opts['outtmpl'], dict):
-            self.ydl_opts['outtmpl']['default'] = self.ydl_opts['outtmpl']['default'].replace('TITLE', self.title)
-        else:
-            self.ydl_opts['outtmpl'] = self.ydl_opts['outtmpl'].replace('TITLE', self.title)
+        self.duration = parsed_info.get('duration', 0)
+        self.size = parsed_info.get('size')
+        self.formats = parsed_info.get('formats')
+        # if isinstance(self.ydl_opts['outtmpl'], dict):
+        #     self.ydl_opts['outtmpl']['default'] = self.ydl_opts['outtmpl']['default'].replace('TITLE', self.title)
+        # else:
+        #     self.ydl_opts['outtmpl'] = self.ydl_opts['outtmpl'].replace('TITLE', self.title)
 
         Label(self, text=self.title).pack(side=TOP)
         details_frame = Frame(self)
         details_frame.pack(side=TOP)
         Label(details_frame, text=f'Duration: {self.duration}').pack(side=LEFT)
         Label(details_frame,
-              text=f'Size: {round(self.size / (1024 * 1024), 2)}MB' if self.size else 'unknown size').pack(side=LEFT)
+              text=f'Size: {round(self.size / (1024 * 1024), 2)}MB' if self.size else 'videos').pack(side=LEFT)
         format_str = ''
-        if self.formats[
-            'video']: format_str += f'Video: {self.formats["video"]["resolution"]}@{self.formats["video"]["fps"]}fps {self.formats["video"]["codec"]} {"HDR" if self.formats["video"]["hdr"] else ""}'
-        if self.formats[
-            'audio']: format_str += f'Audio: {self.formats["audio"]["sample_rate"]} {self.formats["audio"]["bitrate"]} {self.formats["audio"]["codec"]}'
+        if self.formats.get('video'):
+            format_str += f'Video: {self.formats["video"]["resolution"]}@{self.formats["video"]["fps"]}fps {self.formats["video"]["codec"]} {"HDR" if self.formats["video"]["hdr"] else ""}'
+        if self.formats.get('audio'):
+            format_str += f'Audio: {self.formats["audio"]["sample_rate"]} {self.formats["audio"]["bitrate"]} {self.formats["audio"]["codec"]}'
         Label(details_frame, text=format_str).pack(side=LEFT)
         Label(self, text=f'Save to: {path}').pack(side=TOP)
         Button(self, text="Open File Location", command=lambda: open_download_location(path)).pack(side=BOTTOM)
@@ -284,9 +285,11 @@ def extract_info(url: str, ydl_opts: dict, ignore_error: bool = False) -> dict:
 
 def parse_info(info: dict, best_format_only: bool = True) -> dict:
     title = info['title']
-    duration = info['duration_string']
+    print(info)
+    duration = info.get('duration_string', info.get('playlist_count'))
     size = info.get('filesize', info.get('filesize_approx', 0))
-    subtitles = info['subtitles']
+    subtitles = info.get('subtitles', '')
+    formats = {}
     if best_format_only:  # only 1 for video and/or 1 for audio
         if 'requested_formats' in info:  # best video AND best audio
             temp = [parse_format(f) for f in info['requested_formats']]  # best video/best audio only
@@ -295,11 +298,12 @@ def parse_info(info: dict, best_format_only: bool = True) -> dict:
                 if f['video']: formats['video'] = f['video']
                 if f['audio']: formats['audio'] = f['audio']
         else:  # best video OR audio only
-            format_id = info['format_id']
-            for f in info['formats']:
-                if f['format_id'] == format_id:
-                    formats = parse_format(f)
-                    break
+            format_id = info.get('format_id')
+            if info.get('formats'):
+                for f in info.get('formats'):
+                    if f['format_id'] == format_id:
+                        formats = parse_format(f)
+                        break
     else:
         formats = [parse_format(f) for f in info['formats'] if f.get('format_note', '') != 'storyboard' and (
                 f.get('vcodec', 'none') != 'none' or f.get('acodec', 'none') != 'none') and f.get('url', '')]
@@ -342,6 +346,15 @@ def get_video_name():
 def download(urls: Union[list, str], ydl_opts=None, ignore_error: bool = False) -> bool:
     """Return whether download is successful"""
     if ydl_opts is None: ydl_opts = ydl_base_opts.copy()
+
+    is_playlist = False
+    for url in urls:
+        if isinstance(url, str) and "list" in url and "index" not in url:
+            is_playlist = True
+
+    if is_playlist:
+        ydl_opts['noplaylist'] = False
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download(urls if isinstance(urls, list) else [urls])
@@ -387,7 +400,7 @@ def handle_download_audio_best(url: str, path: str):
     ydl_opts['extract_audio'] = True
     file_name = ydl_opts['outtmpl']
     if name_input.get() != '':
-        file_name = name_input.get() + '.mp3'
+        file_name = name_input.get()
     ydl_opts['outtmpl'] = os.path.join(path,
                                        file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
     download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
@@ -486,7 +499,7 @@ def handle_download_info(url: str, path: str, ydl_opts: dict = None):
                         text=f'Video: {f["video"]["resolution"]}@{f["video"]["fps"]}fps {f["video"]["codec"]} {"HDR" if f["video"]["hdr"] else ""}\n'
                              f'Audio: {f["audio"]["sample_rate"]} {f["audio"]["bitrate"]} {f["audio"]["codec"]}\n'
                              f'File extension: {f["ext"]} Size: ' + (
-                                 f'{round(f["size"] / (1024 * 1024), 2)}MB' if f["size"] else 'unknown size')).pack(
+                                 f'{round(f["size"] / (1024 * 1024), 2)}MB' if f["size"] else 'videos')).pack(
                 side=TOP, fill=X, expand=True, pady=(0, 10))
         else:  # video only or audio only
             if f['video']: video_only_formats[
