@@ -2,7 +2,6 @@ import ctypes
 import logging
 import os
 from sanitize_filename import sanitize
-from subprocess import call
 import sys
 import threading
 from tkinter import *
@@ -15,6 +14,7 @@ if sys.platform == 'win32':
     import winreg
 
 import requests
+import webbrowser
 import yt_dlp
 
 frozen = getattr(sys, 'frozen', False)
@@ -273,7 +273,7 @@ def select_save_path():
 
 
 def open_download_location(path):
-    call(["open", path])
+    webbrowser.open('file:///' + path)
 
 
 def extract_info(url: str, ydl_opts: dict, ignore_error: bool = False) -> dict:
