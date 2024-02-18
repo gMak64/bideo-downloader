@@ -26,6 +26,16 @@ download_queue = []
 ongoing_task: bool = False
 logger.info(f'YT-DLP GUI (yt-dlp {yt_dlp.version.__version__}) (Python {sys.version})')
 
+basedir = os.path.dirname(__file__)
+
+try:
+    from ctypes import windll
+
+    myappid = "stonkedd.yt.downloader"
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
+
 
 def get_res_path(relative_path: str) -> str:
     """ Get absolute path to resource, works for dev and for PyInstaller
@@ -620,4 +630,5 @@ queue_frame.pack(fill=BOTH, expand=True, anchor=CENTER, padx=(10, 10), pady=(10,
 do_tasks()
 
 status('Ready')
+root.iconbitmap(os.path.join("./", "dratini.ico"))
 root.mainloop()
