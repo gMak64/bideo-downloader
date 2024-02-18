@@ -1,3 +1,5 @@
-pytube
-pydub
-yt-dlp
+pyinstaller
+pyinstaller-versionfile
+requests
+sanitize_filename
+yt_dlp
