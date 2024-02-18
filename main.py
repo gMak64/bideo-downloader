@@ -1,5 +1,4 @@
 import ctypes
-import ffmpeg
 import logging
 import os
 from sanitize_filename import sanitize
@@ -391,7 +390,6 @@ def handle_download_audio_best(url: str, path: str):
         file_name = name_input.get() + '.mp3'
     ydl_opts['outtmpl'] = os.path.join(path,
                                        file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
-    download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
     download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
 
 
