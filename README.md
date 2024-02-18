@@ -3,7 +3,7 @@ Video downloader for all my editing goats. Currently supports:
 - YouTube
 
 ## How to Install
-1. Download any version of Python > 3.7: https://www.python.org/downloads/
+1. Download any version of Python > 3.9: https://www.python.org/downloads/
 2. Download PyInstaller: https://pyinstaller.org/en/stable/installation.html
 3. Download this (top right corner)
 4. Right click the unzipped folder, and select "Open with terminal"
