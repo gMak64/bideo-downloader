@@ -345,7 +345,6 @@ def download(urls: Union[list, str], ydl_opts=None, ignore_error: bool = False) 
     if ydl_opts is None: ydl_opts = ydl_base_opts.copy()
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            print(ydl_opts)
             ydl.download(urls if isinstance(urls, list) else [urls])
     except yt_dlp.utils.DownloadError as e:
         if ignore_error: return False
@@ -392,6 +391,7 @@ def handle_download_audio_best(url: str, path: str):
         file_name = name_input.get() + '.mp3'
     ydl_opts['outtmpl'] = os.path.join(path,
                                        file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
+    download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
     download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
 
 
