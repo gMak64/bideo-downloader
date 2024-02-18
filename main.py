@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import os
+from subprocess import call
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import scrolledtext
@@ -8,19 +9,35 @@ from yt_dlp.utils import download_range_func
 
 basedir = os.path.dirname(__file__)
 
+
+class MyLogger:
+    def debug(self, msg):
+        if msg.startswith('[debug] '):
+            pass
+        else:
+            self.info(msg)
+
+    def info(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        print(msg)
+
+
 try:
     from ctypes import windll
 
-    myappid = "stonkedd.yt.downloader"
-    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    my_app_id = "stonkedd.yt.downloader"
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 except ImportError:
     pass
 
-    # other_opts = {
-    #     'outtmpl': './test/milk.mp4',
-    #     'format': 'best[ext=mp4]',
-    #     'download_ranges': download_range_func(None, [(curr_time+start, curr_time+end)]),
-    # }
+# other_opts = {
+#     'download_ranges': download_range_func(None, [(curr_time+start, curr_time+end)]),
+# }
 
 
 def download():
@@ -41,22 +58,38 @@ def download():
     else:
         download_format = 'wv[ext=mp4]*+wa[ext=m4a]/w[ext=mp4]'
 
-    print(download_format)
+    good_downloads = 0
+    bad_downloads = 0
 
     for (video, name) in zip(videos, names):
         if video != '\n':
             mp4_opts = {
                 'outtmpl': folder_path.get() + "\\" + name + ".mp4",
                 'format': download_format,
+                'logger': MyLogger(),
+                'progress_hooks': [my_hook],
             }
             try:
                 with yt_dlp.YoutubeDL(mp4_opts) as ydl:
                     error_code = ydl.download(video)
                 print("Video was downloaded successfully")
-                open_popup("Video was downloaded successfully")
+                good_downloads += 1
             except:
                 print("Failed to download video")
-                open_popup("Failed to download video")
+                bad_downloads += 1
+
+    if good_downloads > 0:
+        call(["open", folder_path.get()])
+        if good_downloads == 1:
+            open_popup("Video was downloaded successfully")
+        else:
+            open_popup(f"{good_downloads} videos were downloaded successfully")
+
+    if bad_downloads > 0:
+        if bad_downloads == 1:
+            open_popup("Failed to download video")
+        else:
+            open_popup(f"{bad_downloads} videos failed to download")
 
 
 def download_audio():
@@ -70,6 +103,9 @@ def download_audio():
                 name = name.replace(":", "-")
                 name.replace("/", "-")
                 names.append(name)
+
+    good_downloads = 0
+    bad_downloads = 0
 
     for (video, name) in zip(videos, names):
         if video != '\n':
@@ -86,10 +122,23 @@ def download_audio():
                 with yt_dlp.YoutubeDL(mp3_opts) as ydl:
                     error_code = ydl.download(video)
                 print("Audio was downloaded successfully")
-                open_popup("Audio was downloaded successfully")
+                good_downloads += 1
             except:
                 print("Failed to download audio")
-                open_popup("Failed to download audio")
+                bad_downloads += 1
+
+    if good_downloads > 0:
+        call(["open", folder_path.get()])
+        if good_downloads == 1:
+            open_popup("Audio was downloaded successfully")
+        else:
+            open_popup(f"{good_downloads} audios were downloaded successfully")
+
+    if bad_downloads > 0:
+        if bad_downloads == 1:
+            open_popup("Failed to download audio")
+        else:
+            open_popup(f"{bad_downloads} audios failed to download")
 
 
 def get_resolution(key):
@@ -115,13 +164,9 @@ def open_popup(text):
     tk.Label(top, text=text).place(x=150, y=80)
 
 
-def test():
-    videos = ent_video.get('1.0', 'end-1c')
-    names = ent_name.get('1.0', 'end-1c')
-    for (video, name) in zip(videos, names):
-        if video != '\n':
-            print(folder_path.get() + "/" + name + ".mp4")
-
+def my_hook(d):
+    if d['status'] == 'finished':
+        print('Done downloading, now post-processing ...')
 
 
 window = tk.Tk()
@@ -135,7 +180,6 @@ lbl_videos = tk.Label(window, text="YouTube URLs")
 lbl_names = tk.Label(window, text="File Names")
 ent_video = scrolledtext.ScrolledText(window, width=65, height=10, wrap="none")
 ent_name = scrolledtext.ScrolledText(window, width=65, height=10, wrap="none")
-
 
 btn_convert_mp4 = tk.Button(
     master=window,
@@ -151,12 +195,6 @@ btn_convert_mp3 = tk.Button(
     width=10
 )
 
-btn_print = tk.Button(
-    master=window,
-    text="test",
-    command=test,
-    width=10
-)
 
 lbl_folder = tk.Label(master=window, text="Save Location")
 btn_folder = tk.Button(master=window, text="Browse Folder", command=get_folder_path)
@@ -171,9 +209,9 @@ res_highest_button = tk.Radiobutton(window,
                                     value=1)
 
 res_lowest_button = tk.Radiobutton(window,
-                                 text="Lowest",
-                                 variable=resolution_choice,
-                                 value=2)
+                                   text="Lowest",
+                                   variable=resolution_choice,
+                                   value=2)
 
 lbl_folder.grid(row=0, column=0, padx=(20, 0), pady=(20, 0), sticky="w")
 ent_folder.grid(row=1, column=0, padx=(20, 0), pady=(20, 0), sticky="w")
