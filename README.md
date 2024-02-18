@@ -42,5 +42,5 @@ I recommend using the first option. To do so:
     in an administrative shell (Search for PowerShell, Right-Click and Open as Admin)
 2. Once that is set, you can run:
     ```
-    choco install ffmpeg
+    choco install ffmpeg-full
     ```
