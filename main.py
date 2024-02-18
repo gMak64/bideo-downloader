@@ -116,6 +116,7 @@ class ScrolledWindow(Frame):
         self.xscrlbr.config(command=self.canv.xview)
         self.yscrlbr.config(command=self.canv.yview)
 
+
         # creating a frame to inserto to canvas
         self.scrollwindow = Frame(self.parent)
         self.canv.create_window(0, 0, window=self.scrollwindow, anchor=NW)
@@ -630,5 +631,4 @@ queue_frame.pack(fill=BOTH, expand=True, anchor=CENTER, padx=(10, 10), pady=(10,
 do_tasks()
 
 status('Ready')
-root.iconbitmap(os.path.join("./", "dratini.ico"))
 root.mainloop()

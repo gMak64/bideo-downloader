@@ -24,7 +24,6 @@ To run it, just download the dist file for your OS and run `main`. If you want t
 3. Download this (top right corner)
 4. Right click the unzipped folder, and select "Open with terminal"
 5. Run this command: ```pyinstaller main.py```
-6. Copy ```dratini.ico``` into the created ```dist``` folder
 
 ## YouTube
 Provide a URL, a save location, and whether you want the .mp4 or the .mp3. The file will have the same name as the video.

@@ -1,3 +1,0 @@
-('/Users/grantmak/PycharmProjects/YTDownloader/build/Stonkedd YT '
- 'Downloader/PYZ-00.pyz',
- [])
