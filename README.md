@@ -1,12 +1,17 @@
 # Stonkedd's Video Downloader
 Video downloader for all my editing goats. Current features:
 - Download in .mp4 or .mp3
+- Download in multiple qualities  
 - Queue multiple videos for download
 - Progress bars on downloads
 - Specify a download location, and an option to open that location later
-- Specify names of videos
+- Specify names of files, and an option to grab the default video name
 - Download a playlist by supplying the playlist link (not an invididual video)
-- Verification with browser to download private / restricted videos
+- Verification with browser to download private / restricted videos!
+
+![](./homepage.png)
+![](./options.png)
+
 
 Currently supports:
 - YouTube
