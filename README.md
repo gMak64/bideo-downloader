@@ -2,6 +2,8 @@
 Video downloader for all my editing goats. Currently supports:
 - YouTube
 
+To run it, just download the dist file for your OS and run `main`. If you want to build it yourself for some reason, you can follow the directions below.
+
 ## How to Install
 1. Download any version of Python > 3.9: https://www.python.org/downloads/
 2. Download PyInstaller: https://pyinstaller.org/en/stable/installation.html
@@ -9,8 +11,6 @@ Video downloader for all my editing goats. Currently supports:
 4. Right click the unzipped folder, and select "Open with terminal"
 5. Run this command: ```pyinstaller main.py```
 6. Copy ```dratini.ico``` into the created ```dist``` folder
-
-or ask me 
 
 ## YouTube
 Provide a URL, a save location, and whether you want the .mp4 or the .mp3. The file will have the same name as the video.
