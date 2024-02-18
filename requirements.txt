@@ -1,3 +1,5 @@
+ffmpeg
+ffmpeg-python
 pyinstaller
 pyinstaller-versionfile
 requests
