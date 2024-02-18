@@ -1,11 +1,13 @@
 import ctypes
+import ffmpeg
 import logging
 import os
+from sanitize_filename import sanitize
 from subprocess import call
 import sys
 import threading
 from tkinter import *
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import filedialog, messagebox
 from tkinter.ttk import *
 from typing import Any, Union, Callable
 import re
@@ -15,9 +17,8 @@ if sys.platform == 'win32':
 
 import requests
 import yt_dlp
-from sanitize_filename import sanitize
 
-frozen = getattr(sys, 'frozen', False)  # frozen -> running in exe
+frozen = getattr(sys, 'frozen', False)
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 logging.addLevelName(15, 'STATUS')  # between debug 10 and info 20
@@ -38,25 +39,6 @@ def get_res_path(relative_path: str) -> str:
 
 
 ydl_base_opts: dict[str, Any] = {'outtmpl': 'TITLE-%(id)s.%(ext)s',
-                                 'restrictfilenames': True,
-                                 'nocheckcertificate': True,
-                                 'ignoreerrors': False,
-                                 'logtostderr': False,
-                                 'geo-bypass': True,
-                                 'quiet': True,
-                                 'no_warnings': True,
-                                 'default_search': 'auto',
-                                 'source_address': '0.0.0.0',
-                                 'windowsfilenames': True,
-                                 'overwrites': True,
-                                 'cachedir': False,
-                                 'age_limit': 100,
-                                 'noplaylist': True,
-                                 'live_from_start': True,
-                                 'no-video-multistreams': True,
-                                 'no-audio-multistreams': True,
-                                 # 'check_formats': True,
-                                 'fixup': 'detect_or_warn',
                                  'extractor_args': {'youtube': {'skip': ['dash', 'hls']}},
                                  }
 percent_str_regex = re.compile(r'\d{1,3}\.\d{1,2}%')
@@ -256,7 +238,7 @@ def status(text: Any, log: bool = True):
             logger.log(15, text + '\n')  # custom STATUS logging level 15
         else:
             logger.log(15, text)
-    root.title(f'YT-DLP GUI - {text}')
+    root.title(f'Stonkedd YT Downloader - {text}')
 
 
 def check_url(url: str) -> bool:
@@ -384,7 +366,8 @@ def handle_download_video_best(url: str, path: str):
         file_name = name_input.get() + '.mp4'
     print(file_name)
     ydl_opts.update({'format': 'bv[ext=mp4]*+ba[ext=m4a]/b[ext=mp4]'})
-    ydl_opts['outtmpl'] = os.path.join(path, file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
+    ydl_opts['outtmpl'] = os.path.join(path,
+                                       file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
     download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
 
 
@@ -396,15 +379,19 @@ def handle_download_audio_best(url: str, path: str):
         messagebox.showerror('Error', 'URL is invalid!')
         return
     ydl_opts = ydl_base_opts.copy()
-    ydl_opts.update({'format': 'bestaudio'})
-    ydl_opts.update({'postprocessors': [{
+    ydl_opts['format'] = 'bestaudio/best'
+    ydl_opts['postprocessors'] = [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',
         'preferredquality': '192',
-    }]})
-    ydl_opts['outtmpl'] = os.path.join(path, ydl_opts['outtmpl'] if isinstance(ydl_opts['outtmpl'], str) else
-    ydl_opts['outtmpl']['default'])
-    ydl_opts['outtmpl'] = ydl_opts['outtmpl'].replace('.%(ext)s', '_audio.%(ext)s')
+    }]
+    ydl_opts['extract_audio'] = True
+    file_name = ydl_opts['outtmpl']
+    if name_input.get() != '':
+        file_name = name_input.get() + '.mp3'
+    ydl_opts['outtmpl'] = os.path.join(path,
+                                       file_name if isinstance(file_name, str) else ydl_opts['outtmpl']['default'])
+    download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
     download_queue.append(DownloadTask(url, path, ydl_opts, queue_frame))
 
 
