@@ -33,14 +33,19 @@ If MP3 files fails to convert properly, you probably need this installed: https:
 
 To use this, download from packages & executable files, and move that to your home directory.
 ![](./ffmpeg.png)
-I recommend using the first option. To do so:
+
+### Windows
 1. Follow the instructions here to install chocolatey: https://chocolatey.org/install 
+    - Open Powershell as an administrator (Search for PowerShell, Right-Click and Open as Admin)
     - Or just run 
         ```
         Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         ```
-    in an administrative shell (Search for PowerShell, Right-Click and Open as Admin)
 2. Once that is set, you can run:
     ```
     choco install ffmpeg-full
     ```
+
+### MacOS
+1. Go to the linked site and download the latest MacOS binary
+2. Once you have it installed, add it to your PATH
