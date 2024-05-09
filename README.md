@@ -19,6 +19,11 @@ Currently supports:
 To run it, just download the dist file for your OS and run `main`. If you want to build it yourself for some reason, you can follow the directions below.
 
 ## How to Install
+### Easy
+1. Go to Releases
+2. Download the `.zip`
+3. Inside the `dist-{}/main` folder for your OS, there should be a `main` program. Run that inside the folder. (You can technically delete everything else except that `main` folder.  
+
 1. Download any version of Python > 3.9: https://www.python.org/downloads/
 2. Download PyInstaller: https://pyinstaller.org/en/stable/installation.html
 3. Download this (top right corner)
